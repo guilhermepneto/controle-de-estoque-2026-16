@@ -1,0 +1,42 @@
+@{
+    Layout = "_Layout";
+    ViewBag.Titulo = "Cadastro de Produto";
+}
+
+@model CadastrarProdutoViewModel;
+
+<div class="row justify-content-start">
+    <form class="col-lg-6" asp-action="Cadastrar" method="post">
+
+        <div>
+            <label class="form-label" asp-for="Nome">Nome</label>
+            <input class="form-control" asp-for="Nome" type="text">
+        </div>
+
+        <div class="mt-4">
+            <label class="form-label" asp-for="Descricao">Descrição</label>
+            <textarea class="form-control" asp-for="Descricao"></textarea>
+        </div>
+
+        <div class="mt-4">
+            <label class="form-label" asp-for="FornecedorId">Fornecedor</label>
+            <select class="form-select" asp-for="FornecedorId">
+                @foreach (FornecedorProdutoViewModel f in Model.Fornecedores)
+                {
+                    <option value="@f.Id">@f.Nome</option>
+                }
+            </select>
+        </div>
+
+        <div class="d-flex gap-3 mt-4">
+            <button class="btn btn-primary" type="submit">
+                <i class="bi bi-check"></i>
+                Cadastrar
+            </button>
+            <a class="btn btn-outline-secondary" asp-action="Listar">
+                <i class="bi bi-arrow-return-left"></i>
+                Voltar para a lista
+            </a>
+        </div>
+    </form>
+</div>

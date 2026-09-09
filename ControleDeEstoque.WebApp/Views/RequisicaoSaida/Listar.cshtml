@@ -1,0 +1,42 @@
+@model List<ListarRequisicaoSaidaViewModel>
+
+@{
+    Layout = "_Layout";
+    ViewBag.Titulo = "Listagem de Requisições de Saída";
+}
+
+<p>
+    <a class="btn btn-primary" asp-action="Cadastrar">Cadastrar requisição de saída</a>
+</p>
+
+@if (Model.Count == 0)
+{
+    <div class="alert alert-info" role="alert">Nenhuma requisição de saída cadastrada.</div>
+}
+else
+{
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 row-cols-xl-4 g-3 mt-4">
+        @foreach (ListarRequisicaoSaidaViewModel requisicao in Model)
+        {
+            <div class="col">
+                <article class="card h-100">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h2 class="h5 mb-0">@requisicao.NomeCliente</h2>
+                        <span class="badge text-bg-secondary">#@requisicao.Id</span>
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text"><strong>Data:</strong> @requisicao.Data.ToShortDateString()</p>
+                        <h3 class="h6">Produtos</h3>
+                        <ul class="mb-0">
+                            @foreach (ListarProdutoPrescritoRequisicaoSaidaViewModel produto in
+                    requisicao.ProdutosPrescritos)
+                            {
+                                <li>@produto.Nome: @produto.Quantidade</li>
+                            }
+                        </ul>
+                    </div>
+                </article>
+            </div>
+        }
+    </div>
+}

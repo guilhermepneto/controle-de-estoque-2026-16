@@ -1,0 +1,80 @@
+@model CadastrarRequisicaoSaidaViewModel
+
+@{
+    Layout = "_Layout";
+    ViewBag.Titulo = "Cadastrar Requisição de Saída";
+}
+
+<div class="row justify-content-start">
+
+    <form asp-action="Cadastrar" method="post">
+
+        <div class="col-md-8 col-lg-6 mb-4">
+            <label class="form-label" asp-for="ClienteId">Cliente</label>
+            <select class="form-select" asp-for="ClienteId">
+                <option value="0">Selecione um cliente</option>
+                @foreach (ClienteRequisicaoSaidaViewModel cliente in Model.Clientes)
+                {
+                    <option value="@cliente.Id">@cliente.Nome</option>
+                }
+            </select>
+        </div>
+
+        <fieldset>
+            <legend class="h5">Produtos requisitados</legend>
+
+            @if (Model.ProdutosPrescritos.Count == 0)
+            {
+                <div class="alert alert-warning" role="alert">Nenhum produto cadastrado.</div>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table align-middle">
+                        <thead>
+                            <tr>
+                                <th scope="col">Selecionar</th>
+                                <th scope="col">Produto</th>
+                                <th scope="col">Estoque</th>
+                                <th scope="col">Quantidade</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            @for (int indice = 0; indice < Model.ProdutosPrescritos.Count; indice++)
+                            {
+                                ProdutoPrescritoRequisicaoSaidaViewModel produtoPrescrito =
+                        Model.ProdutosPrescritos[indice];
+
+                                <tr>
+                                    <td>
+                                        <input asp-for="ProdutosPrescritos[indice].ProdutoId" type="hidden">
+                                        <input class="form-check-input" asp-for="ProdutosPrescritos[indice].Selecionado">
+                                    </td>
+                                    <td>@produtoPrescrito.NomeProduto</td>
+                                    <td>@produtoPrescrito.QuantidadeEmEstoque</td>
+                                    <td>
+                                        <input class="form-control" asp-for="ProdutosPrescritos[indice].Quantidade"
+                                               type="number">
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </fieldset>
+
+        <div class="d-flex gap-3 mt-4">
+            <button class="btn btn-primary" type="submit">
+                <i class="bi bi-check"></i>
+                Cadastrar
+            </button>
+            <a class="btn btn-outline-secondary" asp-action="Listar">
+                <i class="bi bi-arrow-return-left"></i>
+                Voltar para a lista
+            </a>
+        </div>
+
+    </form>
+</div>

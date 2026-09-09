@@ -1,0 +1,37 @@
+@model EditarFuncionarioViewModel;
+
+@{
+    Layout = "_Layout";
+    ViewBag.Titulo = "Edição de Funcionário";
+}
+
+<div class="row justify-content-start">
+    <form class="col-lg-6" asp-action="Editar" asp-route-id="@Model.Id" method="post">
+
+        <div>
+            <label class="form-label" asp-for="Nome"></label>
+            <input class="form-control" asp-for="Nome" type="text">
+        </div>
+
+        <div class="mt-4">
+            <label class="form-label" asp-for="Telefone"></label>
+            <input class="form-control" asp-for="Telefone" type="text">
+        </div>
+
+        <div class="mt-4">
+            <label class="form-label" asp-for="Cpf">CPF</label>
+            <input class="form-control" asp-for="Cpf" type="text">
+        </div>
+
+        <div class="d-flex gap-3 mt-4">
+            <button class="btn btn-primary" type="submit">
+                <i class="bi bi-check"></i>
+                Confirmar edição
+            </button>
+            <a class="btn btn-outline-secondary" asp-action="Listar">
+                <i class="bi bi-arrow-return-left"></i>
+                Voltar para a lista
+            </a>
+        </div>
+    </form>
+</div>

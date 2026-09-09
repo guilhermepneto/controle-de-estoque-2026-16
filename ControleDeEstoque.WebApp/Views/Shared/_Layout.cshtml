@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>@ViewBag.Titulo | Controle de Estoque</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css" rel="stylesheet">
+
+</head>
+
+<body data-bs-theme="dark">
+        <nav class="navbar navbar-expand-lg bg-primary">
+          <div class="container">
+            <a class="navbar-brand" asp-controller="Home" asp-action="Index">Controle de Estoque</a>
+
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="ms-auto navbar-nav">
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="Home" asp-action="Index">Início</a>
+                            </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="Fornecedor" asp-action="Listar">Fornecedor</a>
+                            </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="Produto" asp-action="Listar">Produtos</a>
+                            </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="Funcionario" asp-action="Listar">Funcionários</a>
+                            </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="Cliente" asp-action="Listar">Clientes</a>
+                            </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="RequisicaoEntrada" asp-action="Listar">Entradas</a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="RequisicaoSaida" asp-action="Listar">Saídas</a>
+                        </li>
+                    </ul>
+                </div>
+          </div>
+        </nav>
+
+        <main class="container py-4">
+        <header class="mb-4">
+            <h1>@ViewBag.Titulo</h1>
+        </header>
+
+            @RenderBody()
+        </main>
+
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
+                integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
+                crossorigin="anonymous"></script>
+</body>
+
+</html>
+
+
+
