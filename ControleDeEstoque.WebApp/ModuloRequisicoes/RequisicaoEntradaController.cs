@@ -1,4 +1,3 @@
-using ControleDeEstoque.WebApp.Compartilhado.Arquivos;
 using ControleDeEstoque.WebApp.ModuloFuncionario;
 using ControleDeEstoque.WebApp.ModuloProdutos;
 using Microsoft.AspNetCore.Mvc;
@@ -28,12 +27,14 @@ public class RequisicaoEntradaController : Controller
 
         foreach (RequisicaoEntrada requisicao in repositorio.SelecionarTodos())
         {
-            ListarRequisicaoEntradaViewModel viewModel = new ListarRequisicaoEntradaViewModel(
+            ListarRequisicaoEntradaViewModel viewModel = new(
                 requisicao.Id,
                 requisicao.Produto.Nome,
                 requisicao.Funcionario.Nome,
                 requisicao.Quantidade,
-                requisicao.Data
+                requisicao.Data,
+                requisicao.Tipo,
+                requisicao.NumeroNotaFiscal
             );
 
             viewModels.Add(viewModel);
@@ -45,12 +46,11 @@ public class RequisicaoEntradaController : Controller
     [HttpGet]
     public ActionResult Cadastrar()
     {
-        CadastrarRequisicaoEntradaViewModel viewModel = new CadastrarRequisicaoEntradaViewModel(
-            0,
-            0,
-            0
-        ) with
-        { Produtos = ObterProdutos(), Funcionarios = ObterFuncionarios() };
+        CadastrarRequisicaoEntradaViewModel viewModel = new(0, 0, 0)
+        {
+            Produtos = ObterProdutos(),
+            Funcionarios = ObterFuncionarios()
+        };
 
         return View(viewModel);
     }
@@ -68,11 +68,33 @@ public class RequisicaoEntradaController : Controller
         if (funcionario == null)
             return NotFound();
 
-        RequisicaoEntrada requisicaoEntrada = new RequisicaoEntrada(
+        string? numeroNotaFiscal = viewModel.Tipo == TipoEntrada.NotaFiscal
+            ? viewModel.NumeroNotaFiscal
+            : null;
+
+        RequisicaoEntrada requisicaoEntrada = new(
             produto,
             viewModel.Quantidade,
-            funcionario
+            funcionario,
+            viewModel.Tipo,
+            numeroNotaFiscal
         );
+
+        List<string> erros = requisicaoEntrada.Validar();
+
+        if (erros.Count > 0)
+        {
+            foreach (string erro in erros)
+                ModelState.AddModelError(string.Empty, erro);
+
+            viewModel = viewModel with
+            {
+                Produtos = ObterProdutos(),
+                Funcionarios = ObterFuncionarios()
+            };
+
+            return View(viewModel);
+        }
 
         repositorio.Cadastrar(requisicaoEntrada);
 
@@ -85,12 +107,7 @@ public class RequisicaoEntradaController : Controller
 
         foreach (Produto produto in repositorioProduto.SelecionarTodos())
         {
-            ProdutoRequisicaoEntradaViewModel viewModel = new ProdutoRequisicaoEntradaViewModel(
-                produto.Id,
-                produto.Nome
-            );
-
-            viewModels.Add(viewModel);
+            viewModels.Add(new ProdutoRequisicaoEntradaViewModel(produto.Id, produto.Nome));
         }
 
         return viewModels;
@@ -102,12 +119,7 @@ public class RequisicaoEntradaController : Controller
 
         foreach (Funcionario funcionario in repositorioFuncionario.SelecionarTodos())
         {
-            FuncionarioRequisicaoEntradaViewModel viewModel = new FuncionarioRequisicaoEntradaViewModel(
-                funcionario.Id,
-                funcionario.Nome
-            );
-
-            viewModels.Add(viewModel);
+            viewModels.Add(new FuncionarioRequisicaoEntradaViewModel(funcionario.Id, funcionario.Nome));
         }
 
         return viewModels;

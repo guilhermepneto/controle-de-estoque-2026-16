@@ -32,6 +32,17 @@ else
                             <dt class="col-sm-6">Quantidade</dt>
                             <dd class="col-sm-6">@requisicao.Quantidade</dd>
 
+                            <dt class="col-sm-6">Tipo de entrada</dt>
+                            <dd class="col-sm-6">
+                                @(requisicao.Tipo == TipoEntrada.Devolucao ? "Devolução" : "Nota Fiscal")
+                            </dd>
+
+                            @if (requisicao.Tipo == TipoEntrada.NotaFiscal)
+                            {
+                                <dt class="col-sm-6">Nota Fiscal</dt>
+                                <dd class="col-sm-6">@requisicao.NumeroNotaFiscal</dd>
+                            }
+
                             <dt class="col-sm-6">Data</dt>
                             <dd class="col-sm-6">@requisicao.Data.ToShortDateString()</dd>
                         </dl>

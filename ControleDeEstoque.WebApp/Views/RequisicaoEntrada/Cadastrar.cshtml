@@ -1,19 +1,21 @@
 @model CadastrarRequisicaoEntradaViewModel
 
 @{
-Layout = "_Layout";
-ViewBag.Titulo = "Cadastrar Requisição de Entrada";
+  Layout = "_Layout";
+  ViewBag.Titulo = "Cadastrar Requisição de Entrada";
 }
 
 <div class="row justify-content-start">
   <form class="col-lg-6" asp-action="Cadastrar" method="post">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
     <div>
       <label class="form-label" asp-for="ProdutoId">Produto</label>
       <select class="form-select" asp-for="ProdutoId">
         <option value="0">Selecione um produto</option>
         @foreach (ProdutoRequisicaoEntradaViewModel produto in Model.Produtos)
         {
-        <option value="@produto.Id">@produto.Nome</option>
+          <option value="@produto.Id">@produto.Nome</option>
         }
       </select>
     </div>
@@ -24,7 +26,7 @@ ViewBag.Titulo = "Cadastrar Requisição de Entrada";
         <option value="0">Selecione um funcionário</option>
         @foreach (FuncionarioRequisicaoEntradaViewModel funcionario in Model.Funcionarios)
         {
-        <option value="@funcionario.Id">@funcionario.Nome</option>
+          <option value="@funcionario.Id">@funcionario.Nome</option>
         }
       </select>
     </div>
@@ -32,6 +34,19 @@ ViewBag.Titulo = "Cadastrar Requisição de Entrada";
     <div class="mt-4">
       <label class="form-label" asp-for="Quantidade"></label>
       <input class="form-control" asp-for="Quantidade" />
+    </div>
+
+    <div class="mt-4">
+      <label class="form-label" asp-for="Tipo">Tipo de entrada</label>
+      <select class="form-select" asp-for="Tipo" id="tipoEntrada">
+        <option value="@TipoEntrada.NotaFiscal">Nota Fiscal</option>
+        <option value="@TipoEntrada.Devolucao">Devolução</option>
+      </select>
+    </div>
+
+    <div class="mt-4" id="campoNotaFiscal">
+      <label class="form-label" asp-for="NumeroNotaFiscal">Número da Nota Fiscal</label>
+      <input class="form-control" asp-for="NumeroNotaFiscal" />
     </div>
 
     <div class="d-flex gap-3 mt-4">
@@ -46,3 +61,26 @@ ViewBag.Titulo = "Cadastrar Requisição de Entrada";
     </div>
   </form>
 </div>
+
+@section Scripts {
+  <partial name="_ValidationScriptsPartial" />
+
+  <script>
+    function atualizarCampoNotaFiscal() {
+      const tipo = document.getElementById("tipoEntrada");
+      const campo = document.getElementById("campoNotaFiscal");
+      const input = document.getElementById("NumeroNotaFiscal");
+
+      const ehDevolucao = tipo.value === "@((int)TipoEntrada.Devolucao)";
+
+      campo.style.display = ehDevolucao ? "none" : "block";
+      input.disabled = ehDevolucao;
+
+      if (ehDevolucao)
+        input.value = "";
+    }
+
+    document.getElementById("tipoEntrada").addEventListener("change", atualizarCampoNotaFiscal);
+    atualizarCampoNotaFiscal();
+  </script>
+}

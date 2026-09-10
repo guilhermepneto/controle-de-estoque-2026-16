@@ -15,13 +15,17 @@ public record ListarRequisicaoEntradaViewModel(
     string NomeProduto,
     string NomeFuncionario,
     int Quantidade,
-    DateTime Data
+    DateTime Data,
+    TipoEntrada Tipo,
+    string? NumeroNotaFiscal
 );
 
 public record CadastrarRequisicaoEntradaViewModel(
     int ProdutoId,
     int FuncionarioId,
-    int Quantidade
+    int Quantidade,
+    TipoEntrada Tipo = TipoEntrada.NotaFiscal,
+    string? NumeroNotaFiscal = null
 )
 {
     public List<ProdutoRequisicaoEntradaViewModel> Produtos { get; init; } = [];
