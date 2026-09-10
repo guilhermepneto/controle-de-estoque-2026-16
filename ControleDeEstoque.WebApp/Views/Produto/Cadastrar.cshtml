@@ -1,13 +1,13 @@
+@model CadastrarProdutoViewModel
+
 @{
     Layout = "_Layout";
     ViewBag.Titulo = "Cadastro de Produto";
 }
 
-@model CadastrarProdutoViewModel;
-
 <div class="row justify-content-start">
     <form class="col-lg-6" asp-action="Cadastrar" method="post">
-
+        <div asp-validation-summary="All" class="text-danger mb-3"></div>
         <div>
             <label class="form-label" asp-for="Nome">Nome</label>
             <input class="form-control" asp-for="Nome" type="text">
@@ -19,8 +19,18 @@
         </div>
 
         <div class="mt-4">
+            <label class="form-label" asp-for="Categoria">Categoria</label>
+            <select class="form-select" asp-for="Categoria">
+                <option value="@CategoriaProduto.Geral">Produto geral</option>
+                <option value="@CategoriaProduto.Tinta">Tinta</option>
+                <option value="@CategoriaProduto.Toner">Toner</option>
+            </select>
+        </div>
+
+        <div class="mt-4">
             <label class="form-label" asp-for="FornecedorId">Fornecedor</label>
             <select class="form-select" asp-for="FornecedorId">
+                <option value="0">Selecione um fornecedor</option>
                 @foreach (FornecedorProdutoViewModel f in Model.Fornecedores)
                 {
                     <option value="@f.Id">@f.Nome</option>

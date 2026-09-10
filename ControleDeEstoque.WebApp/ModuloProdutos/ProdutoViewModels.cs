@@ -10,13 +10,15 @@ public record ListarProdutoViewModel(
     string Nome,
     string Descricao,
     string NomeFornecedor,
-    int QuantidadeEmEstoque
+    int QuantidadeEmEstoque,
+    CategoriaProduto Categoria
 );
 
 public record CadastrarProdutoViewModel(
     string Nome,
     string Descricao,
-    int FornecedorId
+    int FornecedorId,
+    CategoriaProduto Categoria
 )
 {
     public List<FornecedorProdutoViewModel> Fornecedores { get; init; } = [];
@@ -26,7 +28,8 @@ public record EditarProdutoViewModel(
     int Id,
     string Nome,
     string Descricao,
-    int FornecedorId
+    int FornecedorId,
+    CategoriaProduto Categoria
 )
 {
     public List<FornecedorProdutoViewModel> Fornecedores { get; init; } = [];

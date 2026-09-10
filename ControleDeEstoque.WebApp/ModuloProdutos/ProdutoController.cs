@@ -1,4 +1,3 @@
-using ControleDeEstoque.WebApp.Compartilhado.Arquivos;
 using ControleDeEstoque.WebApp.ModuloFornecedores;
 using Microsoft.AspNetCore.Mvc;
 
@@ -9,48 +8,56 @@ public sealed class ProdutoController : Controller
     private readonly RepositorioProdutoEmArquivo repositorioProduto;
     private readonly RepositorioFornecedorEmArquivo repositorioFornecedor;
 
-    public ProdutoController()
+    public ProdutoController(
+        RepositorioProdutoEmArquivo repositorioProduto,
+        RepositorioFornecedorEmArquivo repositorioFornecedor)
     {
-        ContextoJson contexto = new ContextoJson();
-
-        contexto.Carregar();
-
-        repositorioProduto = new RepositorioProdutoEmArquivo(contexto);
-        repositorioFornecedor = new RepositorioFornecedorEmArquivo(contexto);
+        this.repositorioProduto = repositorioProduto;
+        this.repositorioFornecedor = repositorioFornecedor;
     }
 
     [HttpGet]
-    public ActionResult Listar()
+    public ActionResult Listar(CategoriaProduto? categoria = null)
     {
-        List<Produto> produtos = repositorioProduto.SelecionarTodos();
-
         List<ListarProdutoViewModel> viewModels = [];
 
-        foreach (Produto med in produtos)
+        foreach (Produto produto in repositorioProduto.SelecionarTodos())
         {
-            ListarProdutoViewModel viewModel = new ListarProdutoViewModel(
-                med.Id,
-                med.Nome,
-                med.Descricao,
-                med.Fornecedor.Nome,
-                med.QuantidadeEmEstoque
-            );
+            if (categoria.HasValue && produto.Categoria != categoria.Value)
+                continue;
 
-            viewModels.Add(viewModel);
+            viewModels.Add(new ListarProdutoViewModel(
+                produto.Id,
+                produto.Nome,
+                produto.Descricao,
+                produto.Fornecedor.Nome,
+                produto.QuantidadeEmEstoque,
+                produto.Categoria
+            ));
         }
+
+        ViewBag.Categoria = categoria;
+        ViewBag.Titulo = categoria switch
+        {
+            CategoriaProduto.Tinta => "Tintas",
+            CategoriaProduto.Toner => "Toners",
+            _ => "Listagem de Produtos"
+        };
 
         return View(viewModels);
     }
-
     [HttpGet]
-    public ActionResult Cadastrar()
+    public ActionResult Cadastrar(CategoriaProduto categoria = CategoriaProduto.Geral)
     {
-        CadastrarProdutoViewModel viewModel = new CadastrarProdutoViewModel(
-           string.Empty,
-           string.Empty,
-           0
-       ) with
-        { Fornecedores = ObterFornecedores() };
+        CadastrarProdutoViewModel viewModel = new(
+            string.Empty,
+            string.Empty,
+            0,
+            categoria
+        )
+        {
+            Fornecedores = ObterFornecedores()
+        };
 
         return View(viewModel);
     }
@@ -63,11 +70,25 @@ public sealed class ProdutoController : Controller
         if (fornecedor == null)
             return NotFound();
 
-        Produto produto = new Produto(viewModel.Nome, viewModel.Descricao, fornecedor);
+        Produto produto = new(
+            viewModel.Nome,
+            viewModel.Descricao,
+            fornecedor,
+            viewModel.Categoria
+        );
+
+        foreach (string erro in produto.Validar())
+            ModelState.AddModelError(string.Empty, erro);
+
+        if (!ModelState.IsValid)
+        {
+            viewModel = viewModel with { Fornecedores = ObterFornecedores() };
+            return View(viewModel);
+        }
 
         repositorioProduto.Cadastrar(produto);
 
-        return RedirectToAction(nameof(Listar));
+        return RedirectToAction(nameof(Listar), new { categoria = viewModel.Categoria == CategoriaProduto.Geral ? (CategoriaProduto?)null : viewModel.Categoria });
     }
 
     [HttpGet]
@@ -78,12 +99,13 @@ public sealed class ProdutoController : Controller
         if (produto == null)
             return NotFound();
 
-        EditarProdutoViewModel viewModel = new EditarProdutoViewModel(
+        EditarProdutoViewModel viewModel = new(
             id,
             produto.Nome,
             produto.Descricao,
-            produto.Fornecedor.Id
-        ) with
+            produto.Fornecedor.Id,
+            produto.Categoria
+        )
         {
             Fornecedores = ObterFornecedores()
         };
@@ -99,15 +121,33 @@ public sealed class ProdutoController : Controller
         if (fornecedor == null)
             return NotFound();
 
-        Produto produtoAtualizado = new Produto(viewModel.Nome, viewModel.Descricao, fornecedor); ;
+        Produto produtoAtualizado = new(
+            viewModel.Nome,
+            viewModel.Descricao,
+            fornecedor,
+            viewModel.Categoria
+        );
 
-        bool conseguiuEditar = repositorioProduto.Editar(viewModel.Id, produtoAtualizado);
+        foreach (string erro in produtoAtualizado.Validar())
+            ModelState.AddModelError(string.Empty, erro);
 
-        if (!conseguiuEditar)
+        if (!ModelState.IsValid)
+        {
+            viewModel = viewModel with { Fornecedores = ObterFornecedores() };
+            return View(viewModel);
+        }
+
+        if (!repositorioProduto.Editar(viewModel.Id, produtoAtualizado))
             return NotFound();
 
-        return RedirectToAction(nameof(Listar));
+        return RedirectToAction(nameof(Listar), new
+        {
+            categoria = viewModel.Categoria == CategoriaProduto.Geral
+                ? (CategoriaProduto?)null
+                : viewModel.Categoria
+        });
     }
+
 
     [HttpGet]
     public ActionResult Excluir(int id)
@@ -124,9 +164,7 @@ public sealed class ProdutoController : Controller
     [ActionName("Excluir")]
     public ActionResult ConfirmarExclusao(int id)
     {
-        bool conseguiuExcluir = repositorioProduto.Excluir(id);
-
-        if (!conseguiuExcluir)
+        if (!repositorioProduto.Excluir(id))
             return NotFound();
 
         return RedirectToAction(nameof(Listar));
@@ -134,19 +172,10 @@ public sealed class ProdutoController : Controller
 
     private List<FornecedorProdutoViewModel> ObterFornecedores()
     {
-        List<Fornecedor> fornecedores = repositorioFornecedor.SelecionarTodos();
-
         List<FornecedorProdutoViewModel> fornecedoresVms = [];
 
-        foreach (Fornecedor f in fornecedores)
-        {
-            FornecedorProdutoViewModel fornecedorVm = new FornecedorProdutoViewModel(
-                f.Id,
-                f.Nome
-            );
-
-            fornecedoresVms.Add(fornecedorVm);
-        }
+        foreach (Fornecedor fornecedor in repositorioFornecedor.SelecionarTodos())
+            fornecedoresVms.Add(new FornecedorProdutoViewModel(fornecedor.Id, fornecedor.Nome));
 
         return fornecedoresVms;
     }

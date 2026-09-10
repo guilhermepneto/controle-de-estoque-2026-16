@@ -4,22 +4,31 @@ using ControleDeEstoque.WebApp.ModuloRequisicoes;
 
 namespace ControleDeEstoque.WebApp.ModuloProdutos;
 
+public enum CategoriaProduto
+{
+    Geral,
+    Tinta,
+    Toner
+}
+
 public class Produto : EntidadeBase
 {
     public string Nome { get; set; } = string.Empty;
     public string Descricao { get; set; } = string.Empty;
     public Fornecedor Fornecedor { get; set; } = null!;
+    public CategoriaProduto Categoria { get; set; } = CategoriaProduto.Geral;
     public List<RequisicaoEntrada> Requisicoes { get; set; } = [];
     public List<RequisicaoSaida> RequisicoesSaida { get; set; } = [];
 
 
     public Produto() { }
 
-    public Produto(string nome, string descricao, Fornecedor fornecedor) : this()
+    public Produto(string nome, string descricao, Fornecedor fornecedor, CategoriaProduto categoria = CategoriaProduto.Geral) : this()
     {
         Nome = nome;
         Descricao = descricao;
         Fornecedor = fornecedor;
+        Categoria = categoria;
     }
 
     public int QuantidadeEmEstoque
@@ -71,6 +80,7 @@ public class Produto : EntidadeBase
         Nome = produtoAtualizado.Nome;
         Descricao = produtoAtualizado.Descricao;
         Fornecedor = produtoAtualizado.Fornecedor;
+        Categoria = produtoAtualizado.Categoria;
     }
 
 }
