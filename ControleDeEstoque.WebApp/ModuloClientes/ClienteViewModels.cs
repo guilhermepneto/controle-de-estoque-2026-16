@@ -4,22 +4,26 @@ public record ListarClienteViewModel(
     int Id,
     string Nome,
     string Telefone,
-    string Email
+    string? Email,
+    string Documento,
+    TipoDocumentoCliente TipoDocumento
 );
 
 public record CadastrarClienteViewModel(
     string Nome,
     string Telefone,
-    string Email,
-    string Cpf
+    string? Email,
+    string Cpf,
+    TipoDocumentoCliente TipoDocumento
 );
 
 public record EditarClienteViewModel(
     int Id,
     string Nome,
     string Telefone,
-    string Email,
-    string Cpf
+    string? Email,
+    string Cpf,
+    TipoDocumentoCliente TipoDocumento
 );
 
 public record ExcluirClienteViewModel(

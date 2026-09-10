@@ -1,4 +1,3 @@
-using ControleDeEstoque.WebApp.Compartilhado.Arquivos;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ControleDeEstoque.WebApp.ModuloClientes;
@@ -17,16 +16,16 @@ public class ClienteController : Controller
     {
         List<ListarClienteViewModel> viewModels = [];
 
-        foreach (Cliente p in repositorio.SelecionarTodos())
+        foreach (Cliente cliente in repositorio.SelecionarTodos())
         {
-            ListarClienteViewModel viewModel = new ListarClienteViewModel(
-                p.Id,
-                p.Nome,
-                p.Telefone,
-                p.Email
-            );
-
-            viewModels.Add(viewModel);
+            viewModels.Add(new ListarClienteViewModel(
+                cliente.Id,
+                cliente.Nome,
+                cliente.Telefone,
+                cliente.Email,
+                cliente.Documento,
+                cliente.TipoDocumento
+            ));
         }
 
         return View(viewModels);
@@ -35,28 +34,28 @@ public class ClienteController : Controller
     [HttpGet]
     public ActionResult Cadastrar()
     {
-        CadastrarClienteViewModel viewModel = new CadastrarClienteViewModel(
-            string.Empty,
-            string.Empty,
-            string.Empty,
-            string.Empty
-        );
-
-        return View(viewModel);
+        return View(new CadastrarClienteViewModel(
+            string.Empty, string.Empty, string.Empty, string.Empty, TipoDocumentoCliente.CPF));
     }
 
     [HttpPost]
     public ActionResult Cadastrar(CadastrarClienteViewModel viewModel)
     {
-        Cliente cliente = new Cliente(
+        Cliente cliente = new(
             viewModel.Nome,
             viewModel.Telefone,
             viewModel.Email,
-            viewModel.Cpf
+            viewModel.Cpf,
+            viewModel.TipoDocumento
         );
 
-        repositorio.Cadastrar(cliente);
+        foreach (string erro in cliente.Validar())
+            ModelState.AddModelError(string.Empty, erro);
 
+        if (!ModelState.IsValid)
+            return View(viewModel);
+
+        repositorio.Cadastrar(cliente);
         return RedirectToAction(nameof(Listar));
     }
 
@@ -68,30 +67,34 @@ public class ClienteController : Controller
         if (cliente == null)
             return NotFound();
 
-        EditarClienteViewModel viewModel = new EditarClienteViewModel(
+        return View(new EditarClienteViewModel(
             id,
             cliente.Nome,
             cliente.Telefone,
             cliente.Email,
-            cliente.Cpf
-        );
-
-        return View(viewModel);
+            cliente.Documento,
+            cliente.TipoDocumento
+        ));
     }
 
     [HttpPost]
     public ActionResult Editar(EditarClienteViewModel viewModel)
     {
-        Cliente clienteAtualizado = new Cliente(
+        Cliente clienteAtualizado = new(
             viewModel.Nome,
             viewModel.Telefone,
             viewModel.Email,
-            viewModel.Cpf
+            viewModel.Cpf,
+            viewModel.TipoDocumento
         );
 
-        bool conseguiuEditar = repositorio.Editar(viewModel.Id, clienteAtualizado);
+        foreach (string erro in clienteAtualizado.Validar())
+            ModelState.AddModelError(string.Empty, erro);
 
-        if (!conseguiuEditar)
+        if (!ModelState.IsValid)
+            return View(viewModel);
+
+        if (!repositorio.Editar(viewModel.Id, clienteAtualizado))
             return NotFound();
 
         return RedirectToAction(nameof(Listar));
@@ -105,21 +108,14 @@ public class ClienteController : Controller
         if (cliente == null)
             return NotFound();
 
-        ExcluirClienteViewModel viewModel = new ExcluirClienteViewModel(
-            id,
-            cliente.Nome
-        );
-
-        return View(viewModel);
+        return View(new ExcluirClienteViewModel(id, cliente.Nome));
     }
 
     [HttpPost]
     [ActionName("Excluir")]
     public ActionResult ConfirmarExclusao(int id)
     {
-        bool conseguiuExcluir = repositorio.Excluir(id);
-
-        if (!conseguiuExcluir)
+        if (!repositorio.Excluir(id))
             return NotFound();
 
         return RedirectToAction(nameof(Listar));
