@@ -1,0 +1,88 @@
+@model RelatorioSemanalViewModel
+
+@{
+    Layout = "_Layout";
+    ViewBag.Titulo = "Relatório Semanal";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="mb-1">Relatório Semanal</h2>
+        <span class="text-secondary">@Model.Inicio.ToString("dd/MM/yyyy") até @Model.Fim.ToString("dd/MM/yyyy")</span>
+    </div>
+
+    <a class="btn btn-outline-secondary" asp-action="Listar">
+        <i class="bi bi-arrow-return-left"></i>
+        Voltar para o estoque
+    </a>
+</div>
+
+<h4>Entradas</h4>
+
+<table class="table table-striped table-hover align-middle mb-5">
+    <thead>
+        <tr>
+            <th>Data</th>
+            <th>Produto</th>
+            <th>Quantidade</th>
+            <th>Tipo</th>
+            <th>Nota Fiscal</th>
+            <th>Funcionário</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (Model.Entradas.Count == 0)
+        {
+            <tr>
+                <td colspan="6" class="text-center">Nenhuma entrada no período.</td>
+            </tr>
+        }
+        else
+        {
+            @foreach (RelatorioEntradaViewModel entrada in Model.Entradas)
+            {
+                <tr>
+                    <td>@entrada.Data.ToString("dd/MM/yyyy HH:mm")</td>
+                    <td>@entrada.NomeProduto</td>
+                    <td>@entrada.Quantidade</td>
+                    <td>@entrada.Tipo</td>
+                    <td>@entrada.Documento</td>
+                    <td>@entrada.NomeFuncionario</td>
+                </tr>
+            }
+        }
+    </tbody>
+</table>
+
+<h4>Saídas</h4>
+
+<table class="table table-striped table-hover align-middle">
+    <thead>
+        <tr>
+            <th>Data</th>
+            <th>Cliente</th>
+            <th>Produto</th>
+            <th>Quantidade</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (Model.Saidas.Count == 0)
+        {
+            <tr>
+                <td colspan="4" class="text-center">Nenhuma saída no período.</td>
+            </tr>
+        }
+        else
+        {
+            @foreach (RelatorioSaidaViewModel saida in Model.Saidas)
+            {
+                <tr>
+                    <td>@saida.Data.ToString("dd/MM/yyyy HH:mm")</td>
+                    <td>@saida.NomeCliente</td>
+                    <td>@saida.NomeProduto</td>
+                    <td>@saida.Quantidade</td>
+                </tr>
+            }
+        }
+    </tbody>
+</table>
