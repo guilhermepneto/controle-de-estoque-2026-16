@@ -53,8 +53,10 @@ public class RequisicaoSaida : EntidadeBase
                 if (mp.Quantidade <= 0)
                     erros.Add($"A \"Quantidade\" do produto \"{mp.Produto.Nome}\" deve ser maior que zero.");
 
-                if (mp.Produto.QuantidadeEmEstoque < 0)
-                    erros.Add($"Não há estoque suficiente para o produto \"{mp.Produto.Nome}\".");
+                int estoqueDisponivel = mp.Produto.QuantidadeEmEstoque + mp.Quantidade;
+
+                if (mp.Quantidade > estoqueDisponivel)
+                    erros.Add($"Não há estoque suficiente para o produto \"{mp.Produto.Nome}\". Estoque disponível: {estoqueDisponivel}.");
             }
         }
 

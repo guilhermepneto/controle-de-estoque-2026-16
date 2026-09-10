@@ -90,6 +90,20 @@ public class RequisicaoSaidaController : Controller
 
         RequisicaoSaida requisicao = new RequisicaoSaida(cliente, produtosPrescritos);
 
+        List<string> erros = requisicao.Validar();
+
+        if (erros.Count > 0)
+        {
+            ModelState.AddModelError(string.Empty, erros.First());
+            viewModel = viewModel with
+            {
+                Clientes = ObterClientes(),
+                ProdutosPrescritos = ObterProdutos(viewModel.ProdutosPrescritos)
+            };
+
+            return View(viewModel);
+        }
+
         repositorio.Cadastrar(requisicao);
 
         return RedirectToAction(nameof(Listar));

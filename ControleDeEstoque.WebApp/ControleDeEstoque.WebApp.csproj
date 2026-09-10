@@ -13,8 +13,4 @@
     <Folder Include="wwwroot\img\" />
   </ItemGroup>
 
-  <ItemGroup>
-    <None Include="Views\RequisicaoEntrada\Cadastrar.cshtml" />
-  </ItemGroup>
-
 </Project>
