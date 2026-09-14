@@ -10,7 +10,7 @@
     <a class="btn btn-primary" asp-action="Cadastrar" asp-route-categoria="@(categoria ?? CategoriaProduto.Geral)">
         <i class="bi bi-patch-plus"></i>
         Cadastrar @(categoria == CategoriaProduto.Tinta ? "tinta" : categoria == CategoriaProduto.Toner ? "toner" :
-            "produto")
+                    "produto")
     </a>
     <a class="btn btn-outline-secondary" asp-action="Listar">Todos</a>
     <a class="btn btn-outline-secondary" asp-action="Listar" asp-route-categoria="@CategoriaProduto.Tinta">Tintas</a>

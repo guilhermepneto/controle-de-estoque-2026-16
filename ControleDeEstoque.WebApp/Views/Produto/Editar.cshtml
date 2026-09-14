@@ -19,6 +19,16 @@
         </div>
 
         <div class="mt-4">
+            <label class="form-label" asp-for="MarcaEquipamento">Marca do equipamento</label>
+            <input class="form-control" asp-for="MarcaEquipamento" type="text">
+        </div>
+
+        <div class="mt-4">
+            <label class="form-label" asp-for="MarcaItem">Marca do item</label>
+            <input class="form-control" asp-for="MarcaItem" type="text">
+        </div>
+
+        <div class="mt-4">
             <label class="form-label" asp-for="Categoria">Categoria</label>
             <select class="form-select" asp-for="Categoria">
                 <option value="@CategoriaProduto.Geral">Produto geral</option>

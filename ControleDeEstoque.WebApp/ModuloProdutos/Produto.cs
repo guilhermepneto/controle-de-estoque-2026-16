@@ -15,6 +15,8 @@ public class Produto : EntidadeBase
 {
     public string Nome { get; set; } = string.Empty;
     public string Descricao { get; set; } = string.Empty;
+    public string MarcaEquipamento { get; set; } = string.Empty;
+    public string MarcaItem { get; set; } = string.Empty;
     public Fornecedor Fornecedor { get; set; } = null!;
     public CategoriaProduto Categoria { get; set; } = CategoriaProduto.Geral;
     public List<RequisicaoEntrada> Requisicoes { get; set; } = [];
@@ -23,12 +25,14 @@ public class Produto : EntidadeBase
 
     public Produto() { }
 
-    public Produto(string nome, string descricao, Fornecedor fornecedor, CategoriaProduto categoria = CategoriaProduto.Geral) : this()
+    public Produto(string nome, string descricao, Fornecedor fornecedor, CategoriaProduto categoria = CategoriaProduto.Geral, string marcaEquipamento = "", string marcaItem = "") : this()
     {
         Nome = nome;
         Descricao = descricao;
         Fornecedor = fornecedor;
         Categoria = categoria;
+        MarcaEquipamento = marcaEquipamento;
+        MarcaItem = marcaItem;
     }
 
     public int QuantidadeEmEstoque
@@ -70,6 +74,12 @@ public class Produto : EntidadeBase
         if (Fornecedor == null)
             erros.Add("O campo \"Fornecedor\" deve ser preenchido.");
 
+        if (string.IsNullOrWhiteSpace(MarcaEquipamento))
+            erros.Add("O campo \"Marca do equipamento\" deve ser preenchido.");
+
+        if (string.IsNullOrWhiteSpace(MarcaItem))
+            erros.Add("O campo \"Marca do item\" deve ser preenchido.");
+
         return erros;
     }
 
@@ -81,6 +91,8 @@ public class Produto : EntidadeBase
         Descricao = produtoAtualizado.Descricao;
         Fornecedor = produtoAtualizado.Fornecedor;
         Categoria = produtoAtualizado.Categoria;
+        MarcaEquipamento = produtoAtualizado.MarcaEquipamento;
+        MarcaItem = produtoAtualizado.MarcaItem;
     }
 
 }

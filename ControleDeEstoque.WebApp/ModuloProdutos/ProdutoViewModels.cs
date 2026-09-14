@@ -10,6 +10,8 @@ public record ListarProdutoViewModel(
     string Nome,
     string Descricao,
     string NomeFornecedor,
+    string MarcaEquipamento,
+    string MarcaItem,
     int QuantidadeEmEstoque,
     CategoriaProduto Categoria
 );
@@ -17,6 +19,8 @@ public record ListarProdutoViewModel(
 public record CadastrarProdutoViewModel(
     string Nome,
     string Descricao,
+    string MarcaEquipamento,
+    string MarcaItem,
     int FornecedorId,
     CategoriaProduto Categoria
 )
@@ -28,6 +32,8 @@ public record EditarProdutoViewModel(
     int Id,
     string Nome,
     string Descricao,
+    string MarcaEquipamento,
+    string MarcaItem,
     int FornecedorId,
     CategoriaProduto Categoria
 )

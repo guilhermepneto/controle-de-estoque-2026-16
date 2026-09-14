@@ -31,6 +31,8 @@ public sealed class ProdutoController : Controller
                 produto.Nome,
                 produto.Descricao,
                 produto.Fornecedor.Nome,
+                produto.MarcaEquipamento,
+                produto.MarcaItem,
                 produto.QuantidadeEmEstoque,
                 produto.Categoria
             ));
@@ -50,6 +52,8 @@ public sealed class ProdutoController : Controller
     public ActionResult Cadastrar(CategoriaProduto categoria = CategoriaProduto.Geral)
     {
         CadastrarProdutoViewModel viewModel = new(
+            string.Empty,
+            string.Empty,
             string.Empty,
             string.Empty,
             0,
@@ -74,7 +78,9 @@ public sealed class ProdutoController : Controller
             viewModel.Nome,
             viewModel.Descricao,
             fornecedor,
-            viewModel.Categoria
+            viewModel.Categoria,
+            viewModel.MarcaEquipamento,
+            viewModel.MarcaItem
         );
 
         foreach (string erro in produto.Validar())
@@ -103,6 +109,8 @@ public sealed class ProdutoController : Controller
             id,
             produto.Nome,
             produto.Descricao,
+            produto.MarcaEquipamento,
+            produto.MarcaItem,
             produto.Fornecedor.Id,
             produto.Categoria
         )
@@ -125,7 +133,9 @@ public sealed class ProdutoController : Controller
             viewModel.Nome,
             viewModel.Descricao,
             fornecedor,
-            viewModel.Categoria
+            viewModel.Categoria,
+            viewModel.MarcaEquipamento,
+            viewModel.MarcaItem
         );
 
         foreach (string erro in produtoAtualizado.Validar())
