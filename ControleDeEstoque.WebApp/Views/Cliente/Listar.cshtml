@@ -24,7 +24,13 @@ else
         @foreach (ListarClienteViewModel f in Model)
         {
             <div class="col">
-                <div class="card h-100">
+                <div class="card h-100" style="
+                    background: linear-gradient(135deg, #0d6efd, #084298);
+                    color: white;
+                    border-left: 6px solid #ffc107;
+                    border-radius: 12px;
+                    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+                    ">
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-center mb-2">
                             <h5>@f.Nome</h5>
@@ -40,7 +46,7 @@ else
                         </dl>
 
                         <div class="d-flex gap-2 justify-content-end mt-auto">
-                            <a class="btn btn-sm btn-outline-primary" title="Editar" asp-action="Editar" asp-route-id="@f.Id">
+                            <a class="btn btn-sm btn-outline-warning" title="Editar" asp-action="Editar" asp-route-id="@f.Id">
                                 <i class="bi bi-pencil"></i>
                             </a>
                             <a class="btn btn-sm btn-outline-danger" title="Excluir" asp-action="Excluir" asp-route-id="@f.Id">

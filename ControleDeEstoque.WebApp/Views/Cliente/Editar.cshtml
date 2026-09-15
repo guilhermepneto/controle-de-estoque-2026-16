@@ -33,7 +33,7 @@
 
         <div class="mt-4">
             <label class="form-label" asp-for="Cpf" id="labelDocumento">@(Model.TipoDocumento ==
-                                TipoDocumentoCliente.CNPJ ? "CNPJ" : "CPF")</label>
+                                                TipoDocumentoCliente.CNPJ ? "CNPJ" : "CPF")</label>
                 <input class="form-control" asp-for="Cpf" type="text" id="documento">
             </div>
 
@@ -42,7 +42,7 @@
                     <i class="bi bi-check"></i>
                     Confirmar edição
                 </button>
-                <a class="btn btn-outline-secondary" asp-action="Listar">
+                <a class="btn btn-secondary" asp-action="Listar">
                     <i class="bi bi-arrow-return-left"></i>
                     Voltar para a lista
                 </a>
