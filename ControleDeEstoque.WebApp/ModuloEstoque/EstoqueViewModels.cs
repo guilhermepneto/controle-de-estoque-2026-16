@@ -6,6 +6,8 @@ public record ListarEstoqueViewModel(
     int Id,
     string NomeProduto,
     string Categoria,
+    string MarcaEquipamento,
+    string MarcaItem,
     int QuantidadeEmEstoque
 );
 

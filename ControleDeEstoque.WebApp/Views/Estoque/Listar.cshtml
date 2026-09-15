@@ -6,18 +6,19 @@
 }
 
 <div class="d-flex justify-content-between align-items-center mb-4">
-
     <a class="btn btn-primary" asp-action="RelatorioSemanal">
         <i class="bi bi-file-earmark-text"></i>
         Relatório Semanal
     </a>
 </div>
 
-<table class="table table-striped table-hover align-middle">
+<table class="table table-striped table-hover text-center">
     <thead>
         <tr>
             <th>Produto</th>
             <th>Categoria</th>
+            <th>Marca do equipamento</th>
+            <th>Marca do item</th>
             <th>Quantidade em estoque</th>
         </tr>
     </thead>
@@ -27,6 +28,8 @@
             <tr>
                 <td>@item.NomeProduto</td>
                 <td>@item.Categoria</td>
+                <td>@(string.IsNullOrWhiteSpace(item.MarcaEquipamento) ? "-" : item.MarcaEquipamento)</td>
+                <td>@(string.IsNullOrWhiteSpace(item.MarcaItem) ? "-" : item.MarcaItem)</td>
                 <td>@item.QuantidadeEmEstoque</td>
             </tr>
         }

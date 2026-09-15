@@ -1,127 +1,72 @@
+using ControleDeEstoque.WebApp.Compartilhado;
 using ControleDeEstoque.WebApp.ModuloFuncionario;
 using ControleDeEstoque.WebApp.ModuloProdutos;
-using Microsoft.AspNetCore.Mvc;
 
 namespace ControleDeEstoque.WebApp.ModuloRequisicoes;
 
-public class RequisicaoEntradaController : Controller
+public enum TipoEntrada
 {
-    private readonly RepositorioRequisicaoEntradaEmArquivo repositorio;
-    private readonly RepositorioProdutoEmArquivo repositorioProduto;
-    private readonly RepositorioFuncionarioEmArquivo repositorioFuncionario;
+    NotaFiscal,
+    Devolucao
+}
 
-    public RequisicaoEntradaController(
-        RepositorioRequisicaoEntradaEmArquivo repositorio,
-        RepositorioProdutoEmArquivo repositorioProduto,
-        RepositorioFuncionarioEmArquivo repositorioFuncionario)
+public class RequisicaoEntrada : EntidadeBase
+{
+    public Produto Produto { get; set; } = null!;
+    public Funcionario Funcionario { get; set; } = null!;
+    public int Quantidade { get; set; }
+    public DateTime Data { get; set; } = DateTime.Now;
+    public TipoEntrada Tipo { get; set; } = TipoEntrada.NotaFiscal;
+    public string? NumeroNotaFiscal { get; set; }
+
+    public RequisicaoEntrada() { }
+
+    public RequisicaoEntrada(
+        Produto produto,
+        int quantidade,
+        Funcionario funcionario,
+        TipoEntrada tipo = TipoEntrada.NotaFiscal,
+        string? numeroNotaFiscal = null) : this()
     {
-        this.repositorio = repositorio;
-        this.repositorioProduto = repositorioProduto;
-        this.repositorioFuncionario = repositorioFuncionario;
+        Produto = produto;
+        Quantidade = quantidade;
+        Funcionario = funcionario;
+        Tipo = tipo;
+        NumeroNotaFiscal = numeroNotaFiscal;
+
+        produto.RegistrarRequisicao(this);
     }
 
-    [HttpGet]
-    public ActionResult Listar()
+    public override List<string> Validar()
     {
-        List<ListarRequisicaoEntradaViewModel> viewModels = [];
+        List<string> erros = [];
 
-        foreach (RequisicaoEntrada requisicao in repositorio.SelecionarTodos())
-        {
-            ListarRequisicaoEntradaViewModel viewModel = new(
-                requisicao.Id,
-                requisicao.Produto.Nome,
-                requisicao.Funcionario.Nome,
-                requisicao.Quantidade,
-                requisicao.Data,
-                requisicao.Tipo,
-                requisicao.NumeroNotaFiscal
-            );
+        if (Produto == null)
+            erros.Add("O campo \"Produto\" deve ser preenchido.");
 
-            viewModels.Add(viewModel);
-        }
+        if (Funcionario == null)
+            erros.Add("O campo \"Funcionário\" deve ser preenchido.");
 
-        return View(viewModels);
+        if (Quantidade <= 0)
+            erros.Add("A \"Quantidade\" deve ser maior que zero.");
+
+        if (Tipo == TipoEntrada.NotaFiscal && string.IsNullOrWhiteSpace(NumeroNotaFiscal))
+            erros.Add("O número da Nota Fiscal deve ser preenchido para entradas por Nota Fiscal.");
+
+        if (Tipo == TipoEntrada.Devolucao)
+            NumeroNotaFiscal = null;
+
+        return erros;
     }
 
-    [HttpGet]
-    public ActionResult Cadastrar()
+    public override void Atualizar(EntidadeBase entidadeAtualizada)
     {
-        CadastrarRequisicaoEntradaViewModel viewModel = new(0, 0, 0)
-        {
-            Produtos = ObterProdutos(),
-            Funcionarios = ObterFuncionarios()
-        };
+        RequisicaoEntrada requisicaoAtualizada = (RequisicaoEntrada)entidadeAtualizada;
 
-        return View(viewModel);
-    }
-
-    [HttpPost]
-    public ActionResult Cadastrar(CadastrarRequisicaoEntradaViewModel viewModel)
-    {
-        Produto? produto = repositorioProduto.SelecionarPorId(viewModel.ProdutoId);
-
-        if (produto == null)
-            return NotFound();
-
-        Funcionario? funcionario = repositorioFuncionario.SelecionarPorId(viewModel.FuncionarioId);
-
-        if (funcionario == null)
-            return NotFound();
-
-        string? numeroNotaFiscal = viewModel.Tipo == TipoEntrada.NotaFiscal
-            ? viewModel.NumeroNotaFiscal
-            : null;
-
-        RequisicaoEntrada requisicaoEntrada = new(
-            produto,
-            viewModel.Quantidade,
-            funcionario,
-            viewModel.Tipo,
-            numeroNotaFiscal
-        );
-
-        List<string> erros = requisicaoEntrada.Validar();
-
-        if (erros.Count > 0)
-        {
-            foreach (string erro in erros)
-                ModelState.AddModelError(string.Empty, erro);
-
-            viewModel = viewModel with
-            {
-                Produtos = ObterProdutos(),
-                Funcionarios = ObterFuncionarios()
-            };
-
-            return View(viewModel);
-        }
-
-        repositorio.Cadastrar(requisicaoEntrada);
-
-        return RedirectToAction(nameof(Listar));
-    }
-
-    private List<ProdutoRequisicaoEntradaViewModel> ObterProdutos()
-    {
-        List<ProdutoRequisicaoEntradaViewModel> viewModels = [];
-
-        foreach (Produto produto in repositorioProduto.SelecionarTodos())
-        {
-            viewModels.Add(new ProdutoRequisicaoEntradaViewModel(produto.Id, produto.Nome));
-        }
-
-        return viewModels;
-    }
-
-    private List<FuncionarioRequisicaoEntradaViewModel> ObterFuncionarios()
-    {
-        List<FuncionarioRequisicaoEntradaViewModel> viewModels = [];
-
-        foreach (Funcionario funcionario in repositorioFuncionario.SelecionarTodos())
-        {
-            viewModels.Add(new FuncionarioRequisicaoEntradaViewModel(funcionario.Id, funcionario.Nome));
-        }
-
-        return viewModels;
+        Produto = requisicaoAtualizada.Produto;
+        Quantidade = requisicaoAtualizada.Quantidade;
+        Funcionario = requisicaoAtualizada.Funcionario;
+        Tipo = requisicaoAtualizada.Tipo;
+        NumeroNotaFiscal = requisicaoAtualizada.NumeroNotaFiscal;
     }
 }

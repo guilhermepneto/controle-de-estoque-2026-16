@@ -2,7 +2,7 @@
 
 @{
     Layout = "_Layout";
-    ViewBag.Titulo = "Listagem de Funcionários";
+    ViewBag.Titulo = "Funcionários";
 }
 
 <p>
@@ -28,11 +28,11 @@ else
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-center mb-2">
                             <h5>@f.Nome</h5>
-                            <span class="badge text-bg-secondary">@f.Id</span>
+                            @*<span class="badge text-bg-secondary">@f.Id</span>*@
                         </div>
 
                         <dl class="row mb-2">
-                            <dt class="col-sm-4">Telefone</dt>
+                            <dt class="col-sm-8">Telefone</dt>
                             <dd class="col-sm-8">@f.Telefone</dd>
                         </dl>
 

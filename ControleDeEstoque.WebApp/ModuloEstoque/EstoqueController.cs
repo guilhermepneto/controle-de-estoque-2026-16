@@ -32,6 +32,8 @@ public class EstoqueController : Controller
                 produto.Id,
                 produto.Nome,
                 produto.Categoria.ToString(),
+                produto.MarcaEquipamento,
+                produto.MarcaItem,
                 produto.QuantidadeEmEstoque
             ));
         }
@@ -42,9 +44,11 @@ public class EstoqueController : Controller
     [HttpGet]
     public ActionResult RelatorioSemanal()
     {
-        DateTime fim = DateTime.Now;
-        DateTime inicio = fim.Date.AddDays(-6);
-        DateTime fimExclusivo = fim.Date.AddDays(1);
+        DateTime hoje = DateTime.Today;
+        int diasDesdeSegunda = ((int)hoje.DayOfWeek + 6) % 7;
+        DateTime inicio = hoje.AddDays(-diasDesdeSegunda);
+        DateTime fim = inicio.AddDays(6);
+        DateTime fimExclusivo = inicio.AddDays(7);
 
         List<RelatorioEntradaViewModel> entradas = [];
         foreach (RequisicaoEntrada entrada in repositorioEntrada.SelecionarTodos())
