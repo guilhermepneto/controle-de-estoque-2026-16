@@ -3,16 +3,69 @@
     ViewBag.Titulo = "Página Inicial";
 }
 
-<div class="row gap-3 gap-lg-0 mt-4">
+<div style="
+    min-height: calc(100vh - 56px);
+    background-color: #b2c6db;
+    margin-top: -1.5rem;
+    margin-bottom: -1.5rem;
+    margin-left: calc((100% - 100vw) / 2);
+    margin-right: calc((100% - 100vw) / 2);
+    display: flex;
+    align-items: center;
+    ">
 
-    <div class="col-12 col-lg-6">
-        <img class="img-fluid" src="~/img/ssa-logo-2026.svg" />
+    <div class="container">
+        <div class="row align-items-center justify-content-center w-100">
+
+            <div class="col-12 col-lg-6 text-center mb-5 mb-lg-0">
+                <img src="~/img/ssa-logo-2026.svg" class="img-fluid" style="max-width: 420px; opacity: 0.85;">
+            </div>
+
+            <div class="col-12 col-lg-5">
+
+                <a asp-controller="Produto" asp-action="Listar" class="text-decoration-none">
+
+                    <div class="p-4 mb-4 rounded-3 shadow" style="
+                        background: linear-gradient(135deg, #0d6efd, #084298);
+                        color: white;
+                        border-left: 6px solid #ffc107;
+                        ">
+
+                        <div class="d-flex align-items-center">
+                            <i class="bi bi-box-seam fs-1 me-3"></i>
+
+                            <div>
+                                <h3 class="mb-1">PRODUTOS</h3>
+                                <span>@ViewBag.TotalProdutos cadastrados</span>
+                            </div>
+                        </div>
+
+                    </div>
+                </a>
+
+                <a asp-controller="Estoque" asp-action="Listar" class="text-decoration-none">
+
+                    <div class="p-4 rounded-3 shadow" style="
+                        background: linear-gradient(135deg, #0d6efd, #084298);
+                        color: white;
+                        border-left: 6px solid #dc3545;
+                        ">
+
+                        <div class="d-flex align-items-center">
+                            <i class="bi bi-clipboard-data fs-1 me-3"></i>
+
+                            <div>
+                                <h3 class="mb-1">ESTOQUE</h3>
+                                <span>@ViewBag.TotalEstoque itens</span>
+                            </div>
+                        </div>
+
+                    </div>
+                </a>
+
+            </div>
+
+        </div>
     </div>
 
 </div>
-
-
-
-
-
-
