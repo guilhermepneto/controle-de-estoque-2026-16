@@ -47,6 +47,17 @@
                                 }
                             </ul>
                         </div>
+                        <div class="card-footer d-flex justify-content-end gap-2"
+                             style="background: transparent; border-top: none;">
+                            <a class="btn btn-sm btn-outline-warning" title="Editar" asp-action="Editar"
+                               asp-route-id="@requisicao.Id">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                            <a class="btn btn-sm btn-outline-danger" title="Excluir" asp-action="Excluir"
+                               asp-route-id="@requisicao.Id">
+                                <i class="bi bi-trash3"></i>
+                            </a>
+                        </div>
                     </article>
                 </div>
             }

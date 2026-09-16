@@ -61,6 +61,16 @@ public class Produto : EntidadeBase
         RequisicoesSaida.Add(requisicaoSaida);
     }
 
+    public void RemoverRequisicao(RequisicaoEntrada requisicao)
+    {
+        Requisicoes.Remove(requisicao);
+    }
+
+    public void RemoverRequisicaoSaida(RequisicaoSaida requisicaoSaida)
+    {
+        RequisicoesSaida.Remove(requisicaoSaida);
+    }
+
     public override List<string> Validar()
     {
         List<string> erros = [];

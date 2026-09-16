@@ -31,3 +31,16 @@ public record CadastrarRequisicaoEntradaViewModel(
     public List<ProdutoRequisicaoEntradaViewModel> Produtos { get; init; } = [];
     public List<FuncionarioRequisicaoEntradaViewModel> Funcionarios { get; init; } = [];
 }
+
+
+public record EditarRequisicaoEntradaViewModel(
+    int Id,
+    int ProdutoId,
+    int FuncionarioId,
+    int Quantidade,
+    TipoEntrada Tipo = TipoEntrada.NotaFiscal,
+    string? NumeroNotaFiscal = null)
+{
+    public List<ProdutoRequisicaoEntradaViewModel> Produtos { get; init; } = [];
+    public List<FuncionarioRequisicaoEntradaViewModel> Funcionarios { get; init; } = [];
+}

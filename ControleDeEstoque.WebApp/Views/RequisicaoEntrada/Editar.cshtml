@@ -1,0 +1,80 @@
+@model EditarRequisicaoEntradaViewModel
+
+@{
+    Layout = "_Layout";
+    ViewBag.Titulo = "Editar Requisição de Entrada";
+}
+
+<div class="row justify-content-start">
+    <form class="col-lg-6" asp-action="Editar" asp-route-id="@Model.Id" method="post">
+        <div asp-validation-summary="All" class="text-danger"></div>
+
+        <div>
+            <label class="form-label" asp-for="ProdutoId">Produto</label>
+            <select class="form-select" asp-for="ProdutoId">
+                <option value="0">Selecione um produto</option>
+                @foreach (ProdutoRequisicaoEntradaViewModel produto in Model.Produtos)
+                {
+                    <option value="@produto.Id">@produto.Nome</option>
+                }
+            </select>
+        </div>
+
+        <div class="mt-4">
+            <label class="form-label" asp-for="FuncionarioId">Funcionário</label>
+            <select class="form-select" asp-for="FuncionarioId">
+                <option value="0">Selecione um funcionário</option>
+                @foreach (FuncionarioRequisicaoEntradaViewModel funcionario in Model.Funcionarios)
+                {
+                    <option value="@funcionario.Id">@funcionario.Nome</option>
+                }
+            </select>
+        </div>
+
+        <div class="mt-4">
+            <label class="form-label" asp-for="Quantidade">Quantidade</label>
+            <input class="form-control" asp-for="Quantidade" type="number" min="1">
+        </div>
+
+        <div class="mt-4">
+            <label class="form-label" asp-for="Tipo">Tipo de entrada</label>
+            <select class="form-select" asp-for="Tipo" id="tipoEntrada">
+                <option value="NotaFiscal">Nota Fiscal</option>
+                <option value="Devolucao">Devolução</option>
+            </select>
+        </div>
+
+        <div class="mt-4" id="campoNotaFiscal">
+            <label class="form-label" asp-for="NumeroNotaFiscal">Número da Nota Fiscal</label>
+            <input class="form-control" asp-for="NumeroNotaFiscal" id="numeroNotaFiscal">
+        </div>
+
+        <div class="d-flex gap-3 mt-4">
+            <button class="btn btn-primary" type="submit">
+                <i class="bi bi-check"></i>
+                Confirmar edição
+            </button>
+            <a class="btn btn-secondary" asp-action="Listar">
+                <i class="bi bi-arrow-return-left"></i>
+                Voltar para a lista
+            </a>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <script>
+        function atualizarCampoNotaFiscal() {
+            const tipo = document.getElementById("tipoEntrada");
+            const campo = document.getElementById("campoNotaFiscal");
+            const input = document.getElementById("NumeroNotaFiscal");
+            const ehDevolucao = tipo.value === "Devolucao";
+            campo.style.display = ehDevolucao ? "none" : "block";
+            input.disabled = ehDevolucao;
+            if (ehDevolucao) input.value = "";
+        }
+
+        document.getElementById("tipoEntrada").addEventListener("change", atualizarCampoNotaFiscal);
+        atualizarCampoNotaFiscal();
+    </script>
+}

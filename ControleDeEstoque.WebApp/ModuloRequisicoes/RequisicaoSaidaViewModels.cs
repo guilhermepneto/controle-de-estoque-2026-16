@@ -32,3 +32,10 @@ public record CadastrarRequisicaoSaidaViewModel(int ClienteId)
     public List<ClienteRequisicaoSaidaViewModel> Clientes { get; init; } = [];
     public List<ProdutoPrescritoRequisicaoSaidaViewModel> ProdutosPrescritos { get; init; } = [];
 }
+
+
+public record EditarRequisicaoSaidaViewModel(int Id, int ClienteId)
+{
+    public List<ClienteRequisicaoSaidaViewModel> Clientes { get; init; } = [];
+    public List<ProdutoPrescritoRequisicaoSaidaViewModel> ProdutosPrescritos { get; init; } = [];
+}

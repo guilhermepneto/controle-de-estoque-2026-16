@@ -27,17 +27,14 @@ public class RequisicaoEntradaController : Controller
 
         foreach (RequisicaoEntrada requisicao in repositorio.SelecionarTodos())
         {
-            ListarRequisicaoEntradaViewModel viewModel = new(
+            viewModels.Add(new ListarRequisicaoEntradaViewModel(
                 requisicao.Id,
                 requisicao.Produto.Nome,
                 requisicao.Funcionario.Nome,
                 requisicao.Quantidade,
                 requisicao.Data,
                 requisicao.Tipo,
-                requisicao.NumeroNotaFiscal
-            );
-
-            viewModels.Add(viewModel);
+                requisicao.NumeroNotaFiscal));
         }
 
         return View(viewModels);
@@ -46,7 +43,7 @@ public class RequisicaoEntradaController : Controller
     [HttpGet]
     public ActionResult Cadastrar()
     {
-        CadastrarRequisicaoEntradaViewModel viewModel = new(0, 0, 0)
+        CadastrarRequisicaoEntradaViewModel viewModel = new CadastrarRequisicaoEntradaViewModel(0, 0, 0)
         {
             Produtos = ObterProdutos(),
             Funcionarios = ObterFuncionarios()
@@ -59,44 +56,152 @@ public class RequisicaoEntradaController : Controller
     public ActionResult Cadastrar(CadastrarRequisicaoEntradaViewModel viewModel)
     {
         Produto? produto = repositorioProduto.SelecionarPorId(viewModel.ProdutoId);
-
-        if (produto == null)
-            return NotFound();
-
         Funcionario? funcionario = repositorioFuncionario.SelecionarPorId(viewModel.FuncionarioId);
 
+        if (produto == null)
+            ModelState.AddModelError(nameof(viewModel.ProdutoId), "Selecione um produto.");
+
         if (funcionario == null)
-            return NotFound();
+            ModelState.AddModelError(nameof(viewModel.FuncionarioId), "Selecione um funcionário.");
 
-        string? numeroNotaFiscal = viewModel.Tipo == TipoEntrada.NotaFiscal
-            ? viewModel.NumeroNotaFiscal
-            : null;
-
-        RequisicaoEntrada requisicaoEntrada = new(
-            produto,
-            viewModel.Quantidade,
-            funcionario,
-            viewModel.Tipo,
-            numeroNotaFiscal
-        );
-
-        List<string> erros = requisicaoEntrada.Validar();
-
-        if (erros.Count > 0)
+        if (produto == null || funcionario == null)
         {
-            foreach (string erro in erros)
-                ModelState.AddModelError(string.Empty, erro);
-
             viewModel = viewModel with
             {
                 Produtos = ObterProdutos(),
                 Funcionarios = ObterFuncionarios()
             };
+            return View(viewModel);
+        }
 
+        RequisicaoEntrada requisicaoEntrada = new RequisicaoEntrada(
+            produto,
+            viewModel.Quantidade,
+            funcionario,
+            viewModel.Tipo,
+            viewModel.NumeroNotaFiscal);
+
+        foreach (string erro in requisicaoEntrada.Validar())
+            ModelState.AddModelError(string.Empty, erro);
+
+        if (!ModelState.IsValid)
+        {
+            produto.RemoverRequisicao(requisicaoEntrada);
+            viewModel = viewModel with
+            {
+                Produtos = ObterProdutos(),
+                Funcionarios = ObterFuncionarios()
+            };
             return View(viewModel);
         }
 
         repositorio.Cadastrar(requisicaoEntrada);
+        return RedirectToAction(nameof(Listar));
+    }
+
+    [HttpGet]
+    public ActionResult Editar(int id)
+    {
+        RequisicaoEntrada? requisicao = repositorio.SelecionarPorId(id);
+
+        if (requisicao == null)
+            return NotFound();
+
+        EditarRequisicaoEntradaViewModel viewModel = new EditarRequisicaoEntradaViewModel(
+            id,
+            requisicao.Produto.Id,
+            requisicao.Funcionario.Id,
+            requisicao.Quantidade,
+            requisicao.Tipo,
+            requisicao.NumeroNotaFiscal)
+        {
+            Produtos = ObterProdutos(),
+            Funcionarios = ObterFuncionarios()
+        };
+
+        return View(viewModel);
+    }
+
+    [HttpPost]
+    public ActionResult Editar(EditarRequisicaoEntradaViewModel viewModel)
+    {
+        RequisicaoEntrada? original = repositorio.SelecionarPorId(viewModel.Id);
+
+        if (original == null)
+            return NotFound();
+
+        Produto? produto = repositorioProduto.SelecionarPorId(viewModel.ProdutoId);
+        Funcionario? funcionario = repositorioFuncionario.SelecionarPorId(viewModel.FuncionarioId);
+
+        if (produto == null)
+            ModelState.AddModelError(nameof(viewModel.ProdutoId), "Selecione um produto.");
+
+        if (funcionario == null)
+            ModelState.AddModelError(nameof(viewModel.FuncionarioId), "Selecione um funcionário.");
+
+        original.Produto.RemoverRequisicao(original);
+
+        if (produto != null && funcionario != null)
+        {
+            RequisicaoEntrada atualizada = new RequisicaoEntrada(
+                produto,
+                viewModel.Quantidade,
+                funcionario,
+                viewModel.Tipo,
+                viewModel.NumeroNotaFiscal);
+
+            foreach (string erro in atualizada.Validar())
+                ModelState.AddModelError(string.Empty, erro);
+
+            if (ModelState.IsValid)
+            {
+                atualizada.Id = viewModel.Id;
+                atualizada.Data = original.Data;
+
+                if (repositorio.Editar(viewModel.Id, atualizada))
+                    return RedirectToAction(nameof(Listar));
+
+                return NotFound();
+            }
+
+            produto.RemoverRequisicao(atualizada);
+        }
+
+        original.Produto.RegistrarRequisicao(original);
+
+        viewModel = viewModel with
+        {
+            Produtos = ObterProdutos(),
+            Funcionarios = ObterFuncionarios()
+        };
+
+        return View(viewModel);
+    }
+
+    [HttpGet]
+    public ActionResult Excluir(int id)
+    {
+        RequisicaoEntrada? requisicao = repositorio.SelecionarPorId(id);
+
+        if (requisicao == null)
+            return NotFound();
+
+        return View(requisicao);
+    }
+
+    [HttpPost]
+    [ActionName("Excluir")]
+    public ActionResult ConfirmarExclusao(int id)
+    {
+        RequisicaoEntrada? requisicao = repositorio.SelecionarPorId(id);
+
+        if (requisicao == null)
+            return NotFound();
+
+        requisicao.Produto.RemoverRequisicao(requisicao);
+
+        if (!repositorio.Excluir(id))
+            return NotFound();
 
         return RedirectToAction(nameof(Listar));
     }
@@ -106,9 +211,7 @@ public class RequisicaoEntradaController : Controller
         List<ProdutoRequisicaoEntradaViewModel> viewModels = [];
 
         foreach (Produto produto in repositorioProduto.SelecionarTodos())
-        {
             viewModels.Add(new ProdutoRequisicaoEntradaViewModel(produto.Id, produto.Nome));
-        }
 
         return viewModels;
     }
@@ -118,9 +221,7 @@ public class RequisicaoEntradaController : Controller
         List<FuncionarioRequisicaoEntradaViewModel> viewModels = [];
 
         foreach (Funcionario funcionario in repositorioFuncionario.SelecionarTodos())
-        {
             viewModels.Add(new FuncionarioRequisicaoEntradaViewModel(funcionario.Id, funcionario.Nome));
-        }
 
         return viewModels;
     }
