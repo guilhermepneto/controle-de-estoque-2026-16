@@ -13,8 +13,8 @@
         <a class="btn btn-primary" asp-action="Cadastrar" asp-route-categoria="@(categoria ?? CategoriaProduto.Geral)">
             <i class="bi bi-patch-plus"></i>
             Cadastrar @(categoria == CategoriaProduto.Tinta ? "tinta" :
-                                    categoria == CategoriaProduto.Toner ? "toner" :
-                                    "produto")
+                                                                                    categoria == CategoriaProduto.Toner ? "toner" :
+                                                                                    "produto")
         </a>
 
         <a class="btn btn-secondary" asp-action="Listar" asp-route-pesquisa="@ViewBag.Pesquisa">
@@ -33,7 +33,7 @@
 
     </div>
 
-    <form method="get" asp-action="Listar" class="d-flex">
+    <form method="get" asp-action="Listar" class="d-flex ms-2">
 
         @if (categoria.HasValue)
         {
