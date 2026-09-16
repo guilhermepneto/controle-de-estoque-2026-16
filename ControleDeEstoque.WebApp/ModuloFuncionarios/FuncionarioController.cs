@@ -14,22 +14,26 @@ public sealed class FuncionarioController : Controller
     }
 
     [HttpGet]
-    public ActionResult Listar()
+    public ActionResult Listar(string? pesquisa)
     {
         List<Funcionario> funcionarios = repositorioFuncionario.SelecionarTodos();
 
-        List<ListarFuncionarioViewModel> viewModels = new List<ListarFuncionarioViewModel>();
+        List<ListarFuncionarioViewModel> viewModels = [];
 
-        foreach (Funcionario f in funcionarios)
+        foreach (Funcionario funcionario in funcionarios)
         {
-            ListarFuncionarioViewModel vm = new ListarFuncionarioViewModel(
-                f.Id,
-                f.Nome,
-                f.Telefone
-            );
+            if (!string.IsNullOrWhiteSpace(pesquisa) &&
+                !funcionario.Nome.Contains(pesquisa, StringComparison.OrdinalIgnoreCase))
+                continue;
 
-            viewModels.Add(vm);
+            viewModels.Add(new ListarFuncionarioViewModel(
+                funcionario.Id,
+                funcionario.Nome,
+                funcionario.Telefone
+            ));
         }
+
+        ViewBag.Pesquisa = pesquisa;
 
         return View(viewModels);
     }

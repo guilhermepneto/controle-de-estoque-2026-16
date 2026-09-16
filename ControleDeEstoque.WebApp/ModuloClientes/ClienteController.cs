@@ -12,12 +12,16 @@ public class ClienteController : Controller
     }
 
     [HttpGet]
-    public ActionResult Listar()
+    public ActionResult Listar(string? pesquisa)
     {
         List<ListarClienteViewModel> viewModels = [];
 
         foreach (Cliente cliente in repositorio.SelecionarTodos())
         {
+            if (!string.IsNullOrWhiteSpace(pesquisa) &&
+                !cliente.Nome.Contains(pesquisa, StringComparison.OrdinalIgnoreCase))
+                continue;
+
             viewModels.Add(new ListarClienteViewModel(
                 cliente.Id,
                 cliente.Nome,
@@ -27,6 +31,8 @@ public class ClienteController : Controller
                 cliente.TipoDocumento
             ));
         }
+
+        ViewBag.Pesquisa = pesquisa;
 
         return View(viewModels);
     }

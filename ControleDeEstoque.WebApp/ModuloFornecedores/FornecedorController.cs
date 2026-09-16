@@ -13,23 +13,27 @@ public sealed class FornecedorController : Controller
     }
 
     [HttpGet]
-    public ActionResult Listar()
+    public ActionResult Listar(string? pesquisa)
     {
         List<Fornecedor> fornecedores = repositorioFornecedor.SelecionarTodos();
 
-        List<ListarFornecedorViewModel> viewModels = new List<ListarFornecedorViewModel>();
+        List<ListarFornecedorViewModel> viewModels = [];
 
-        foreach (Fornecedor f in fornecedores)
+        foreach (Fornecedor fornecedor in fornecedores)
         {
-            ListarFornecedorViewModel vm = new ListarFornecedorViewModel(
-                f.Id,
-                f.Nome,
-                f.Telefone,
-                f.Cnpj
-            );
+            if (!string.IsNullOrWhiteSpace(pesquisa) &&
+                !fornecedor.Nome.Contains(pesquisa, StringComparison.OrdinalIgnoreCase))
+                continue;
 
-            viewModels.Add(vm);
+            viewModels.Add(new ListarFornecedorViewModel(
+                fornecedor.Id,
+                fornecedor.Nome,
+                fornecedor.Telefone,
+                fornecedor.Cnpj
+            ));
         }
+
+        ViewBag.Pesquisa = pesquisa;
 
         return View(viewModels);
     }

@@ -17,7 +17,7 @@ public sealed class ProdutoController : Controller
     }
 
     [HttpGet]
-    public ActionResult Listar(CategoriaProduto? categoria = null)
+    public ActionResult Listar(CategoriaProduto? categoria = null, string? pesquisa = null)
     {
         List<ListarProdutoViewModel> viewModels = [];
 
@@ -25,6 +25,19 @@ public sealed class ProdutoController : Controller
         {
             if (categoria.HasValue && produto.Categoria != categoria.Value)
                 continue;
+
+            if (!string.IsNullOrWhiteSpace(pesquisa))
+            {
+                bool encontrou =
+                    produto.Nome.Contains(pesquisa, StringComparison.OrdinalIgnoreCase) ||
+                    produto.Descricao.Contains(pesquisa, StringComparison.OrdinalIgnoreCase) ||
+                    produto.Fornecedor.Nome.Contains(pesquisa, StringComparison.OrdinalIgnoreCase) ||
+                    produto.MarcaEquipamento.Contains(pesquisa, StringComparison.OrdinalIgnoreCase) ||
+                    produto.MarcaItem.Contains(pesquisa, StringComparison.OrdinalIgnoreCase);
+
+                if (!encontrou)
+                    continue;
+            }
 
             viewModels.Add(new ListarProdutoViewModel(
                 produto.Id,
@@ -39,6 +52,8 @@ public sealed class ProdutoController : Controller
         }
 
         ViewBag.Categoria = categoria;
+        ViewBag.Pesquisa = pesquisa;
+
         ViewBag.Titulo = categoria switch
         {
             CategoriaProduto.Tinta => "Tintas",
@@ -48,6 +63,7 @@ public sealed class ProdutoController : Controller
 
         return View(viewModels);
     }
+
     [HttpGet]
     public ActionResult Cadastrar(CategoriaProduto categoria = CategoriaProduto.Geral)
     {

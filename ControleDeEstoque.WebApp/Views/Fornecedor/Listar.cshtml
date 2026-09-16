@@ -5,12 +5,40 @@
     ViewBag.Titulo = "Fornecedores";
 }
 
-<p>
-    <a class="btn btn-primary" asp-action="Cadastrar">
-        <i class="bi bi-patch-plus"></i>
-        Cadastrar fornecedor
-    </a>
-</p>
+<div class="d-flex justify-content-between align-items-center mb-4">
+
+    <h2 class="mb-0">Fornecedores</h2>
+
+    <div class="d-flex align-items-center gap-2">
+
+        <a class="btn btn-primary" asp-action="Cadastrar">
+            <i class="bi bi-patch-plus"></i>
+            Cadastrar fornecedor
+        </a>
+
+        <form method="get" asp-action="Listar" class="d-flex">
+            <input type="text" name="pesquisa" value="@ViewBag.Pesquisa" class="form-control"
+                   placeholder="Pesquisar fornecedor..." style="
+            width: 280px;
+            background-color: #ffffff;
+            border: 1px solid #ced4da;
+            border-radius: 8px;
+            padding: 9px 12px;
+            ">
+
+            <button type="submit" class="btn ms-2" style="
+                background: linear-gradient(135deg, #0d6efd, #084298);
+                color: white;
+                border: none;
+                border-radius: 8px;
+                ">
+                <i class="bi bi-search"></i>
+            </button>
+        </form>
+
+    </div>
+
+</div>
 
 @if (Model.Count == 0)
 {
