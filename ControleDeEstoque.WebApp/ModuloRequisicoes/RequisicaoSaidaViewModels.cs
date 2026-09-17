@@ -21,7 +21,7 @@ public record ClienteRequisicaoSaidaViewModel(
 
 public record ProdutoPrescritoRequisicaoSaidaViewModel(
     int ProdutoId,
-    string NomeProduto,
+    string? NomeProduto,
     int QuantidadeEmEstoque,
     bool Selecionado,
     int Quantidade

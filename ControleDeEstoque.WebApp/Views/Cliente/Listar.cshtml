@@ -9,16 +9,16 @@
 
     @*<h2 class="mb-0">Clientes</h2>*@
 
-    <div class="d-flex align-items-center gap-2">
+    <div class="d-flex align-items-center w-100">
 
         <a class="btn btn-primary" asp-action="Cadastrar">
             <i class="bi bi-patch-plus"></i>
             Cadastrar cliente
         </a>
 
-        <form method="get" asp-action="Listar" class="d-flex">
+        <form method="get" asp-action="Listar" class="d-flex ms-auto">
             <input type="text" name="pesquisa" value="@ViewBag.Pesquisa" class="form-control"
-                   placeholder="Pesquisar cliente..." style="
+                   placeholder="Pesquisar..." style="
             width: 280px;
             background-color: #ffffff;
             border: 1px solid #ced4da;
@@ -55,7 +55,7 @@ else
                 <div class="card h-100" style="
                     background: linear-gradient(135deg, #0d6efd, #084298);
                     color: white;
-                    border-left: 6px solid #ffc107;
+                    border-left: 6px solid yellow;
                     border-radius: 12px;
                     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
                     ">

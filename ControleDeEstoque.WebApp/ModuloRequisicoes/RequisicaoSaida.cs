@@ -10,23 +10,27 @@ public class RequisicaoSaida : EntidadeBase
     public List<ProdutoPrescrito> ProdutosPrescritos { get; set; } = [];
     public DateTime Data { get; set; } = DateTime.Now;
 
-    public RequisicaoSaida() { }
+    public RequisicaoSaida()
+    {
+    }
 
-    public RequisicaoSaida(Cliente cliente, List<ProdutoPrescrito> produtosPrescritos) : this()
+    public RequisicaoSaida(
+        Cliente cliente,
+        List<ProdutoPrescrito> produtosPrescritos) : this()
     {
         Cliente = cliente;
         ProdutosPrescritos = produtosPrescritos;
 
-        foreach (ProdutoPrescrito mp in ProdutosPrescritos)
-            mp.Produto.RegistrarRequisicaoSaida(this);
+        foreach (ProdutoPrescrito produtoPrescrito in ProdutosPrescritos)
+            produtoPrescrito.Produto.RegistrarRequisicaoSaida(this);
     }
 
     public int ObterQuantidade(Produto produto)
     {
-        foreach (ProdutoPrescrito mp in ProdutosPrescritos)
+        foreach (ProdutoPrescrito produtoPrescrito in ProdutosPrescritos)
         {
-            if (mp.Produto.Id == produto.Id)
-                return mp.Quantidade;
+            if (produtoPrescrito.Produto.Id == produto.Id)
+                return produtoPrescrito.Quantidade;
         }
 
         return 0;
@@ -42,21 +46,31 @@ public class RequisicaoSaida : EntidadeBase
         if (ProdutosPrescritos.Count == 0)
             erros.Add("É necessário selecionar ao menos um produto.");
 
-        foreach (ProdutoPrescrito mp in ProdutosPrescritos)
+        foreach (ProdutoPrescrito produtoPrescrito in ProdutosPrescritos)
         {
-            if (mp.Produto == null)
+            if (produtoPrescrito.Produto == null)
             {
-                erros.Add("O campo \"Produto\" deve ser preenchido.");
+                erros.Add("O campo \"Produto\" deve ser preenchido");
+                continue;
             }
-            else
+
+            if (produtoPrescrito.Quantidade <= 0)
             {
-                if (mp.Quantidade <= 0)
-                    erros.Add($"A \"Quantidade\" do produto \"{mp.Produto.Nome}\" deve ser maior que zero.");
+                erros.Add(
+                    $"A \"Quantidade\" do produto \"{produtoPrescrito.Produto.Nome}\" deve ser maior que zero."
+                );
 
-                int estoqueDisponivel = mp.Produto.QuantidadeEmEstoque;
+                continue;
+            }
 
-                if (mp.Quantidade > estoqueDisponivel)
-                    erros.Add($"Não há estoque suficiente para o produto \"{mp.Produto.Nome}\". Estoque disponível: {estoqueDisponivel}.");
+            int estoqueDisponivel = produtoPrescrito.Produto.QuantidadeEmEstoque;
+
+            if (produtoPrescrito.Quantidade > estoqueDisponivel)
+            {
+                erros.Add(
+                    $"Não há estoque suficiente para o produto \"{produtoPrescrito.Produto.Nome}\". " +
+                    $"Estoque disponível: {estoqueDisponivel}."
+                );
             }
         }
 
@@ -65,7 +79,8 @@ public class RequisicaoSaida : EntidadeBase
 
     public override void Atualizar(EntidadeBase entidadeAtualizada)
     {
-        RequisicaoSaida requisicaoAtualizada = (RequisicaoSaida)entidadeAtualizada;
+        RequisicaoSaida requisicaoAtualizada =
+            (RequisicaoSaida)entidadeAtualizada;
 
         Cliente = requisicaoAtualizada.Cliente;
         ProdutosPrescritos = requisicaoAtualizada.ProdutosPrescritos;

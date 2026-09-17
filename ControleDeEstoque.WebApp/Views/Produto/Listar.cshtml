@@ -13,8 +13,8 @@
         <a class="btn btn-primary" asp-action="Cadastrar" asp-route-categoria="@(categoria ?? CategoriaProduto.Geral)">
             <i class="bi bi-patch-plus"></i>
             Cadastrar @(categoria == CategoriaProduto.Tinta ? "tinta" :
-                                                                                                categoria == CategoriaProduto.Toner ? "toner" :
-                                                                                                "produto")
+                                                                                                            categoria == CategoriaProduto.Toner ? "toner" :
+                                                                                                            "produto")
         </a>
 
         <a class="btn btn-secondary" asp-action="Listar" asp-route-pesquisa="@ViewBag.Pesquisa">
@@ -41,7 +41,7 @@
         }
 
         <input type="text" name="pesquisa" value="@ViewBag.Pesquisa" class="form-control"
-               placeholder="Pesquisar produto..." style="
+               placeholder="Pesquisar..." style="
         width: 280px;
         background-color: #ffffff;
         border: 1px solid #ced4da;

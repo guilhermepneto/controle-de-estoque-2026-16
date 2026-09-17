@@ -21,33 +21,39 @@ public class RequisicaoEntradaController : Controller
     }
 
     [HttpGet]
-    public ActionResult Listar()
+    public ActionResult Listar(string? pesquisa)
     {
-        List<ListarRequisicaoEntradaViewModel> viewModels = [];
+        pesquisa = pesquisa?.Trim();
+        List<ListarRequisicaoEntradaViewModel> viewModels = new List<ListarRequisicaoEntradaViewModel>();
 
         foreach (RequisicaoEntrada requisicao in repositorio.SelecionarTodos())
         {
+            if (!string.IsNullOrWhiteSpace(pesquisa) && !CorrespondePesquisa(requisicao, pesquisa))
+                continue;
+
             viewModels.Add(new ListarRequisicaoEntradaViewModel(
                 requisicao.Id,
-                requisicao.Produto.Nome,
-                requisicao.Funcionario.Nome,
+                requisicao.Produto?.Nome ?? "Produto não encontrado",
+                requisicao.Funcionario?.Nome ?? "Funcionário não encontrado",
                 requisicao.Quantidade,
                 requisicao.Data,
                 requisicao.Tipo,
                 requisicao.NumeroNotaFiscal));
         }
 
+        ViewBag.Pesquisa = pesquisa;
         return View(viewModels);
     }
 
     [HttpGet]
     public ActionResult Cadastrar()
     {
-        CadastrarRequisicaoEntradaViewModel viewModel = new CadastrarRequisicaoEntradaViewModel(0, 0, 0)
-        {
-            Produtos = ObterProdutos(),
-            Funcionarios = ObterFuncionarios()
-        };
+        CadastrarRequisicaoEntradaViewModel viewModel =
+            new CadastrarRequisicaoEntradaViewModel(0, 0, 0)
+            {
+                Produtos = ObterProdutos(),
+                Funcionarios = ObterFuncionarios()
+            };
 
         return View(viewModel);
     }
@@ -65,38 +71,26 @@ public class RequisicaoEntradaController : Controller
             ModelState.AddModelError(nameof(viewModel.FuncionarioId), "Selecione um funcionário.");
 
         if (produto == null || funcionario == null)
-        {
-            viewModel = viewModel with
-            {
-                Produtos = ObterProdutos(),
-                Funcionarios = ObterFuncionarios()
-            };
-            return View(viewModel);
-        }
+            return RetornarCadastroComListas(viewModel);
 
-        RequisicaoEntrada requisicaoEntrada = new RequisicaoEntrada(
+        RequisicaoEntrada requisicao = new RequisicaoEntrada(
             produto,
             viewModel.Quantidade,
             funcionario,
             viewModel.Tipo,
             viewModel.NumeroNotaFiscal);
 
-        foreach (string erro in requisicaoEntrada.Validar())
+        foreach (string erro in requisicao.Validar())
             ModelState.AddModelError(string.Empty, erro);
 
-        if (!ModelState.IsValid)
+        if (ModelState.IsValid)
         {
-            produto.RemoverRequisicao(requisicaoEntrada);
-            viewModel = viewModel with
-            {
-                Produtos = ObterProdutos(),
-                Funcionarios = ObterFuncionarios()
-            };
-            return View(viewModel);
+            repositorio.Cadastrar(requisicao);
+            return RedirectToAction(nameof(Listar));
         }
 
-        repositorio.Cadastrar(requisicaoEntrada);
-        return RedirectToAction(nameof(Listar));
+        produto.RemoverRequisicao(requisicao);
+        return RetornarCadastroComListas(viewModel);
     }
 
     [HttpGet]
@@ -107,17 +101,18 @@ public class RequisicaoEntradaController : Controller
         if (requisicao == null)
             return NotFound();
 
-        EditarRequisicaoEntradaViewModel viewModel = new EditarRequisicaoEntradaViewModel(
-            id,
-            requisicao.Produto.Id,
-            requisicao.Funcionario.Id,
-            requisicao.Quantidade,
-            requisicao.Tipo,
-            requisicao.NumeroNotaFiscal)
-        {
-            Produtos = ObterProdutos(),
-            Funcionarios = ObterFuncionarios()
-        };
+        EditarRequisicaoEntradaViewModel viewModel =
+            new EditarRequisicaoEntradaViewModel(
+                requisicao.Id,
+                requisicao.Produto?.Id ?? 0,
+                requisicao.Funcionario?.Id ?? 0,
+                requisicao.Quantidade,
+                requisicao.Tipo,
+                requisicao.NumeroNotaFiscal)
+            {
+                Produtos = ObterProdutos(),
+                Funcionarios = ObterFuncionarios()
+            };
 
         return View(viewModel);
     }
@@ -139,35 +134,41 @@ public class RequisicaoEntradaController : Controller
         if (funcionario == null)
             ModelState.AddModelError(nameof(viewModel.FuncionarioId), "Selecione um funcionário.");
 
-        original.Produto.RemoverRequisicao(original);
+        Produto produtoOriginal = original.Produto;
+        produtoOriginal.RemoverRequisicao(original);
 
         if (produto != null && funcionario != null)
         {
-            RequisicaoEntrada atualizada = new RequisicaoEntrada(
-                produto,
-                viewModel.Quantidade,
-                funcionario,
-                viewModel.Tipo,
-                viewModel.NumeroNotaFiscal);
+            // Cria a versão nova sem registrá-la no Produto antes da validação.
+            RequisicaoEntrada atualizada = new RequisicaoEntrada
+            {
+                Id = original.Id,
+                Produto = produto,
+                Quantidade = viewModel.Quantidade,
+                Funcionario = funcionario,
+                Tipo = viewModel.Tipo,
+                NumeroNotaFiscal = viewModel.NumeroNotaFiscal,
+                Data = original.Data
+            };
 
             foreach (string erro in atualizada.Validar())
                 ModelState.AddModelError(string.Empty, erro);
 
             if (ModelState.IsValid)
             {
-                atualizada.Id = viewModel.Id;
-                atualizada.Data = original.Data;
+                original.Atualizar(atualizada);
+                original.Produto.RegistrarRequisicao(original);
 
-                if (repositorio.Editar(viewModel.Id, atualizada))
+                if (repositorio.Editar(viewModel.Id, original))
                     return RedirectToAction(nameof(Listar));
 
+                original.Produto.RemoverRequisicao(original);
+                produtoOriginal.RegistrarRequisicao(original);
                 return NotFound();
             }
-
-            produto.RemoverRequisicao(atualizada);
         }
 
-        original.Produto.RegistrarRequisicao(original);
+        produtoOriginal.RegistrarRequisicao(original);
 
         viewModel = viewModel with
         {
@@ -198,17 +199,55 @@ public class RequisicaoEntradaController : Controller
         if (requisicao == null)
             return NotFound();
 
-        requisicao.Produto.RemoverRequisicao(requisicao);
+        Produto produto = requisicao.Produto;
+        produto.RemoverRequisicao(requisicao);
 
         if (!repositorio.Excluir(id))
+        {
+            produto.RegistrarRequisicao(requisicao);
             return NotFound();
+        }
 
         return RedirectToAction(nameof(Listar));
     }
 
+    private bool CorrespondePesquisa(RequisicaoEntrada requisicao, string pesquisa)
+    {
+        if (requisicao.Id.ToString().Contains(pesquisa, StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        if (requisicao.Data.ToString("dd/MM/yyyy").Contains(pesquisa, StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        if ((requisicao.Produto?.Nome ?? string.Empty).Contains(pesquisa, StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        if ((requisicao.Funcionario?.Nome ?? string.Empty).Contains(pesquisa, StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        if ((requisicao.NumeroNotaFiscal ?? string.Empty).Contains(pesquisa, StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        string tipo = requisicao.Tipo == TipoEntrada.Devolucao ? "Devolução" : "Nota Fiscal";
+
+        return tipo.Contains(pesquisa, StringComparison.OrdinalIgnoreCase);
+    }
+
+    private ActionResult RetornarCadastroComListas(CadastrarRequisicaoEntradaViewModel viewModel)
+    {
+        viewModel = viewModel with
+        {
+            Produtos = ObterProdutos(),
+            Funcionarios = ObterFuncionarios()
+        };
+
+        return View("Cadastrar", viewModel);
+    }
+
     private List<ProdutoRequisicaoEntradaViewModel> ObterProdutos()
     {
-        List<ProdutoRequisicaoEntradaViewModel> viewModels = [];
+        List<ProdutoRequisicaoEntradaViewModel> viewModels =
+            new List<ProdutoRequisicaoEntradaViewModel>();
 
         foreach (Produto produto in repositorioProduto.SelecionarTodos())
             viewModels.Add(new ProdutoRequisicaoEntradaViewModel(produto.Id, produto.Nome));
@@ -218,7 +257,8 @@ public class RequisicaoEntradaController : Controller
 
     private List<FuncionarioRequisicaoEntradaViewModel> ObterFuncionarios()
     {
-        List<FuncionarioRequisicaoEntradaViewModel> viewModels = [];
+        List<FuncionarioRequisicaoEntradaViewModel> viewModels =
+            new List<FuncionarioRequisicaoEntradaViewModel>();
 
         foreach (Funcionario funcionario in repositorioFuncionario.SelecionarTodos())
             viewModels.Add(new FuncionarioRequisicaoEntradaViewModel(funcionario.Id, funcionario.Nome));

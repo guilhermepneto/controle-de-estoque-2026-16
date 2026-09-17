@@ -9,16 +9,16 @@
 
     @*<h2 class="mb-0">Funcionários</h2>*@
 
-    <div class="d-flex align-items-center gap-2">
+    <div class="d-flex align-items-center w-100">
 
         <a class="btn btn-primary" asp-action="Cadastrar">
             <i class="bi bi-patch-plus"></i>
             Cadastrar funcionário
         </a>
 
-        <form method="get" asp-action="Listar" class="d-flex ms-2">
+        <form method="get" asp-action="Listar" class="d-flex ms-auto">
             <input type="text" name="pesquisa" value="@ViewBag.Pesquisa" class="form-control"
-                   placeholder="Pesquisar funcionário..." style="
+                placeholder="Pesquisar..." style="
             width: 280px;
             background-color: #ffffff;
             border: 1px solid #ced4da;
