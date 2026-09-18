@@ -46,31 +46,36 @@ public class RequisicaoSaida : EntidadeBase
         if (ProdutosPrescritos.Count == 0)
             erros.Add("É necessário selecionar ao menos um produto.");
 
-        foreach (ProdutoPrescrito produtoPrescrito in ProdutosPrescritos)
+        foreach (ProdutoPrescrito mp in ProdutosPrescritos)
         {
-            if (produtoPrescrito.Produto == null)
+            if (mp.Produto == null)
             {
-                erros.Add("O campo \"Produto\" deve ser preenchido");
-                continue;
+                erros.Add("O campo \"Produto\" deve ser preenchido.");
             }
-
-            if (produtoPrescrito.Quantidade <= 0)
+            else
             {
-                erros.Add(
-                    $"A \"Quantidade\" do produto \"{produtoPrescrito.Produto.Nome}\" deve ser maior que zero."
-                );
+                if (mp.Quantidade <= 0)
+                {
+                    erros.Add(
+                        $"A \"Quantidade\" do produto \"{mp.Produto.Nome}\" deve ser maior que zero."
+                    );
 
-                continue;
-            }
+                    continue;
+                }
 
-            int estoqueDisponivel = produtoPrescrito.Produto.QuantidadeEmEstoque;
+                // A requisição atual já foi registrada no produto pelo construtor.
+                // Por isso, adicionamos novamente sua própria quantidade ao estoque
+                // para obter o estoque disponível antes desta saída.
+                int estoqueDisponivel =
+                    mp.Produto.QuantidadeEmEstoque + mp.Quantidade;
 
-            if (produtoPrescrito.Quantidade > estoqueDisponivel)
-            {
-                erros.Add(
-                    $"Não há estoque suficiente para o produto \"{produtoPrescrito.Produto.Nome}\". " +
-                    $"Estoque disponível: {estoqueDisponivel}."
-                );
+                if (mp.Quantidade > estoqueDisponivel)
+                {
+                    erros.Add(
+                        $"Não há estoque suficiente para o produto \"{mp.Produto.Nome}\". " +
+                        $"Estoque disponível: {estoqueDisponivel}."
+                    );
+                }
             }
         }
 
